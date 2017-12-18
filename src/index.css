@@ -1,0 +1,86 @@
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: sans-serif;
+  color: white;
+}
+
+:root {
+  font-size: 20px;
+}
+
+@media screen
+and (min-width: 375px)
+and (max-width: 767px) {
+  :root {
+    font-size: 12px;
+  }
+}
+
+/*this is very important! Don't forget this in your app*/
+#app {
+   width: 100%;
+   height: 100%;
+ }
+
+
+#views {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+  user-select: none;
+}
+
+
+.clickable {
+  pointer-events: all;
+}
+
+.hidden {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+.button {
+  border: none;
+  background: rgb(14, 76, 18);
+  color: #606162;
+  border-radius: 2px;
+  pointer-events: all;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.button-big {
+  padding: 1em;
+  margin: 1px 0;
+  font-size: 0.8rem;
+}
+
+.button-active {
+  background: rgb(19, 186, 55);
+  color: white;
+}
+
+.bottom-right {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.bottom-left {
+  position: absolute;
+  bottom: 0;
+}
+
+.transparent {
+  opacity: 0;
+  pointer-events: none !important;
+}

@@ -1,0 +1,51 @@
+.home-container{
+  background: #070d39;
+  width: 100vw;
+  height: 100vh;
+}
+
+.button-bar {
+  margin: 1.7rem 1.2rem;
+  display: flex;
+}
+
+.button-bar > *{
+  margin: 0 6px;
+}
+
+.background-video {
+  width: 100%;
+  height: 102%;
+  object-fit: cover;
+  transform: translateY(-3px);
+}
+
+
+@media screen
+and (min-width: 375px)
+and (max-width: 767px) {
+  .background-video {
+    height: 140%;
+    transform: translateY(-120px);
+  }
+}
+
+.logo {
+  position: absolute;
+  margin: 1rem;
+  width: 6rem;
+  top: 0;
+  left: 0;
+}
+
+#home_adminButton {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 1.7rem 1.2rem;
+}
+
+.red {
+  color: white;
+  background: #9f0001;
+}

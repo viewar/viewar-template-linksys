@@ -1,0 +1,4 @@
+{
+  "plugins": ["transform-promise-to-bluebird", "transform-runtime"],
+  "presets": [["env", {"targets": {"browsers": ["last 2 versions", "ios >= 9"]}}], "es2015", "stage-0", "bluebird"]
+}

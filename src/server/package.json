@@ -1,0 +1,17 @@
+{
+  "name": "socket-sync-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "preinstall": "npm install -g pm2",
+    "start": "node server.js",
+    "production": "pm2 start server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "object.values": "^1.0.4",
+    "socket.io": "^2.0.3"
+  }
+}
