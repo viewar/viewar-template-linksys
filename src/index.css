@@ -58,6 +58,10 @@ and (max-width: 767px) {
   align-items: center;
 }
 
+input {
+  pointer-events: all;
+}
+
 .button-big {
   padding: 1em;
   margin: 1px 0;
@@ -83,4 +87,9 @@ and (max-width: 767px) {
 .transparent {
   opacity: 0;
   pointer-events: none !important;
+}
+
+.debug_square {
+  width: 200px;
+  height: 200px;
 }

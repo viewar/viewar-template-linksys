@@ -11,6 +11,7 @@ import AdminView from './views/admin/admin';
 import RoutingService from "./services/routingService";
 import SocketConnection from './services/websocket/socket-connection2';
 import CallService from './services/callService';
+import createLedCheck from './services/ledCheck';
 
 const appId = 'com.viewar.linksysdev';
 
@@ -34,6 +35,10 @@ async function main(){
   // initializing api and services
   const viewarApi = await initViewar({ appId });
   const routingService = new RoutingService(viewarApi);
+
+  const ledCheckService = createLedCheck({viewarApi, ledConfig: viewarApi.appConfig.uiConfig.ledConfig } );
+
+
   const socketConnection = SocketConnection();
   socketConnection.connect({ host: 'ws://3.viewar.com:3001'}); //
 
@@ -75,7 +80,7 @@ async function main(){
       { id: 'home-view', container: HomeView, props: { viewarApi, routingService, callService, socketConnection}},
       // { id: 'admin-view', container: AdminView, props: { viewarApi, routingService, callService}},
       { id: 'instructions-view', container: InstructionsView, props: { viewarApi, routingService, callService, annotations}},
-      { id: 'troubleshooting-view', container: TroubleshootingView, props: { viewarApi, routingService}},
+      { id: 'troubleshooting-view', container: TroubleshootingView, props: { viewarApi, routingService, ledCheckService}},
     ]);
 
     //route to a specific view according to the role;
