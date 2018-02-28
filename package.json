@@ -8,23 +8,28 @@
     "url": "git://github.com/matthiasklan/viewar-boilerplate.git"
   },
   "scripts": {
-    "watch": "webpack --env production_debug --watch --config ./config/webpack.config.js & node dev-scripts/zip-watcher.js --watch",
+    "watch": "webpack --env production_debug --watch --config ./config/webpack.config.js & viewar-cli zip --watch",
     "deploy": "npm run bundle && npm run quick-deploy",
     "bundle": "npm run build",
-    "build": "webpack -p --env production --config ./config/webpack.config.js && node dev-scripts/zip-watcher.js",
-    "quick-deploy": "node dev-scripts/deploy.js",
+    "build": "webpack --env production --config ./config/webpack.config.js && viewar-cli zip",
+    "quick-deploy": "viewar-cli deploy",
     "deploy:debug": "npm run bundle:debug && npm run quick-deploy",
-    "bundle:debug": "npm run build:debug && node dev-scripts/zip-watcher.js",
-    "build:debug": "webpack --env production_debug --config ./config/webpack.config.js  && node dev-scripts/zip-watcher.js",
+    "bundle:debug": "npm run build:debug && viewar-cli zip",
+    "build:debug": "webpack --env production_debug --config ./config/webpack.config.js  && viewar-cli zip",
     "start": "webpack-dev-server --hot --env development --open --config ./config/webpack.config.js",
     "start:mock": "webpack-dev-server --hot --env development_mock  --open --config ./config/webpack.config.js",
-    "start:remote": "npm run start:mock"
+    "start:remote": "npm run start:mock",
+    "test": "babel-tape-runner \"./src/**/*.test.js\""
   },
   "author": "Matthias Klan for ViewAR GmbH",
   "license": "ISC",
   "dependencies": {
     "rxjs": "^5.5.2",
-    "socket.io-client": "^2.0.4"
+    "socket.io-client": "^2.0.4",
+    "viewar-api": "^0.10.44",
+    "viewar-call": "file:viewar-call",
+    "viewar-core": "^11.0.0",
+    "viewar-socket": "file:viewar-socket"
   },
   "devDependencies": {
     "babel": "^6.5.2",

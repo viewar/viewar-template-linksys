@@ -26,6 +26,14 @@ and (max-width: 767px) {
    height: 100%;
  }
 
+#views {
+    position: absolute;
+    z-index: 2;
+}
+
+.emscripten {
+    z-index: 1 !important;
+}
 
 #views {
   position: absolute;
@@ -93,3 +101,4 @@ input {
   width: 200px;
   height: 200px;
 }
+

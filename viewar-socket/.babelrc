@@ -1,0 +1,5 @@
+{
+  "moduleId": "viewar-socket",
+  "presets": ["es2015", "stage-0"],
+  "plugins": ["add-module-exports"]
+}

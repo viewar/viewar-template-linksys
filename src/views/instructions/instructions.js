@@ -1,7 +1,7 @@
 import View from '../../lib/View';
 import './styles.css';
 import { sortTouchesByDistance } from '../../lib/utils';
-import { ACTIVE } from "../../services/callService";
+import { ACTIVE } from "viewar-call";
 
 export default class InstructionsView extends View {
 
@@ -42,14 +42,13 @@ export default class InstructionsView extends View {
     this.endCallButton.onclick = () => this.endCallHandler();
 
     //this.callService.socketConnection.clientJoined$.subscribe(({ id }) => alert(`user ${id} joined`) );
-
     this.callService.socketConnection.clientListUpdate$.subscribe(() => this.rerenderAdminList());
 
-    this.callService.socketConnection.getData('stepChanged').subscribe((step) => this.setState({ step }, true));
+    this.callService.getData('stepChanged').subscribe((step) => this.setState({ step }, true));
 
 
 
-    this.callService.socketConnection.getData('updateExternalAnnotation')
+    this.callService.getData('updateExternalAnnotation')
       .subscribe((externalAnnotationPosition) => this.setState({ externalAnnotationPosition }, true));
 
     this.callRefusedSub = this.callService.callRefused$.subscribe(() => this.setState({ callStatus: null, message: 'call was refused' }));
@@ -176,9 +175,9 @@ export default class InstructionsView extends View {
 
     //remap the animation to be in the right step order
     const remappedAnimations = [
-      animations.find(({ name }) => name === 'Electricity'),
-      animations.find(({ name }) => name === 'Modem'),
-      animations.find(({ name }) => name === 'Lan'),
+      animations.Electricity,
+      animations.Modem,
+      animations.Lan,
     ];
 
     this.playAnimation(id, remappedAnimations[step]);
