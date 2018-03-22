@@ -1,9 +1,8 @@
 const merge = require('webpack-merge');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
-
-const glob = require('glob');
 const webpack = require('webpack');
 const path = require('path');
 
@@ -39,14 +38,12 @@ exports.productionConfig = merge([
           test: /\.css$/,
           use: extractTextPlugin.extract({
             use: [
-              { loader: 'css-loader', options: { importLoaders: 1, modules: false, localIdentName: '[name]-[local]-[hash:base64:6]' } },
+              { loader: 'css-loader', options: { importLoaders: 1, modules: false, localIdentName: '[name]-[local]' } },
               { loader: 'postcss-loader', options: { plugins: [
-                require('postcss-smart-import')(),
-                require('postcss-cssnext')(),
-                require('postcss-apply')(),
-                require('postcss-responsive-type')(),
-                require('precss')(),
-              ] }},
+                    require('postcss-smart-import')(),
+                    require('postcss-cssnext')(),
+                    require('postcss-responsive-type')(),
+                  ] }},
             ],
             fallback: 'style-loader',
           }),
@@ -55,7 +52,8 @@ exports.productionConfig = merge([
     },
     plugins: [
       new CleanWebpackPlugin([PATHS.build + '/*'], { root: path.resolve(__dirname, '..') }),
-      extractTextPlugin
+      extractTextPlugin,
+      new UglifyJsPlugin(),
     ],
   },
   extractBundles([

@@ -8,15 +8,12 @@ import InstructionsView from './views/instructions/instructions';
 import TroubleshootingView from './views/troubleshooting/troubleshooting';
 
 import RoutingService from "./services/routingService";
-// import CallService from './services/callService';
 
 import { createCallService } from 'viewar-call';
 import { createSocketConnection } from 'viewar-socket';
 
 
 import createLedCheck from './services/ledCheck';
-
-const appId = 'com.viewar.linksys.dev';
 
 const ledConfig = [{
     "id": "power",
@@ -27,9 +24,7 @@ const ledConfig = [{
     },
     "optimal": [254, 220, 127],
     "errorMessage": "Your device is not powered on"
-  },
-  ]
-
+}];
 
 ;(async () => {
 
@@ -47,7 +42,7 @@ const ledConfig = [{
   showLoading(true);
 
   // initializing api and services
-  const api = await viewarApi.init({appId, version: 1.0, logToScreen: true});
+  const api = await viewarApi.init({logToScreen: true});
   window.api = api;
 
 

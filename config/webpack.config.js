@@ -1,14 +1,16 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const merge = require('webpack-merge');
 const webpack = require('webpack');
+const fs = require('fs')
 
+const {appId, appVersion} = JSON.parse(fs.readFileSync(`${__dirname}/../.viewar-config`))
 
 const utils = require('./utils');
-const productionConfig = require('./webpack.production');
-const productionDebugConfig = require('./webpack.production_debug');
+const productionConfig = require('./webpack.config.prod');
+const productionDebugConfig = require('./webpack.config.prod.debug');
 
-const developmentConfig = require('./webpack.development');
-const developmentMockConfig = require('./webpack.development_mock');
+const developmentCoreConfig = require('./webpack.config.dev.core');
+const developmentMockConfig = require('./webpack.config.dev.mock');
 
 const PATHS = utils.paths();
 
@@ -20,27 +22,29 @@ const commonConfig = merge([
     },
     plugins: [
       new HtmlWebpackPlugin({
-        title: 'ViewAR React Boilerplate',
         template: `${PATHS.app}/index.html`,
+        inject: true,
+        bundleIdentifier: appId,
+        bundleVersion: appVersion,
       }),
-      new webpack.IgnorePlugin(/^(core)$/),
     ],
     resolve: {
       modules: [
-        "viewar-modules",
         "node_modules",
       ],
     },
     module: {
       rules: [
         {
-          test: /\.js$/,
+          test: /\.jsx?$/,
           include: PATHS.app,
-          exclude: [/node_modules/, /viewar-modules/],
+          exclude: [/node_modules/],
 
           use: {
             loader: 'babel-loader',
             options: {
+              babelrc: false,
+              plugins: ['transform-object-rest-spread', 'transform-export-extensions'],
               // Enable caching for improved performance during development.
               cacheDirectory: true,
             },
@@ -52,17 +56,17 @@ const commonConfig = merge([
           use: {
             loader: 'file-loader',
             options: {
-              name: '[name].[hash:8].[ext]',
+              name: '[path][name].[ext]',
             },
           },
         },
         {
-          test: /\.(png|jp?g|svg|gif|ico|mp4)$/,
+          test: /\.(png|jp?g|svg|gif|ico)$/,
           use: {
             loader: 'file-loader',
             options: {
               //limit: 2000, //url-loader uses file-loader implicitly when limit is set
-              name: '[path][name].[hash:6].[ext]',
+              name: '[path][name].[ext]',
             },
           },
         },
@@ -88,7 +92,7 @@ module.exports = (env) => {
     return merge(commonConfig, developmentMockConfig.developmentMockConfig);
   }
 
-  console.log('using development mode');
+  console.log('using development core mode');
   // defaults to development config
-  return merge(commonConfig, developmentConfig.developmentConfig);
+  return merge(commonConfig, developmentCoreConfig.developmentCoreConfig);
 };
