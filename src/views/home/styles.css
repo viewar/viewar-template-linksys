@@ -1,7 +1,7 @@
 .home-container{
-  background: #070d39;
   width: 100vw;
   height: 100vh;
+  background: #070d39 url('../../../assets/fallback_background.png') center / cover no-repeat;
 }
 
 .button-bar {
