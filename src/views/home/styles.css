@@ -20,6 +20,14 @@
   transform: translateY(-3px);
 }
 
+.offline-message {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  font-size: 1.4em;
+  color: white;
+  transform: translate(-50%, -50%);
+}
 
 @media screen
 and (min-width: 375px)

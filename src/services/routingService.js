@@ -1,4 +1,4 @@
-export default function RoutingService(viewarApi) {
+export default function RoutingService(viewarApi, offline) {
 
   return {
     viewarApi,
@@ -14,7 +14,7 @@ export default function RoutingService(viewarApi) {
 
   function injectViews(wrapper, views) {
     views.forEach(view => {
-      wrapper.innerHTML += `<div class="hidden ${view.id}">${view.container.html()}</div>`;
+      wrapper.innerHTML += `<div class="hidden ${view.id}">${view.container.html(offline)}</div>`;
       return setTimeout(() => {
         const viewObj = new view.container(view.props || {});
         this.register(view.id, viewObj);

@@ -7,7 +7,7 @@
     "watch": "webpack --env production_debug --watch --config ./config/webpack.config.js & viewar-cli zip --watch",
     "deploy": "npm run bundle && npm run quick-deploy",
     "bundle": "npm run build",
-    "build": "webpack --env production --config ./config/webpack.config.js && viewar-cli zip",
+    "build": "webpack --env production --config ./config/webpack.config.js",
     "quick-deploy": "viewar-cli deploy",
     "deploy:debug": "npm run bundle:debug && npm run quick-deploy",
     "bundle:debug": "npm run build:debug && viewar-cli zip",
@@ -22,7 +22,7 @@
     "fastclick": "^1.0.6",
     "rxjs": "^5.5.2",
     "socket.io-client": "^2.0.4",
-    "viewar-api": "^0.10.52",
+    "viewar-api": "file:../viewar-scripts",
     "viewar-call": "file:viewar-call",
     "viewar-core": "^11.0.0",
     "viewar-socket": "file:viewar-socket"

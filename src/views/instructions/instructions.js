@@ -5,14 +5,15 @@ import { ACTIVE } from "viewar-call";
 
 export default class InstructionsView extends View {
 
-  constructor({ viewarApi, routingService, callService, annotations }){
+  constructor({ offline, viewarApi, routingService, callService, annotations }){
     super();
+    this.offline = offline;
     this.viewarApi = viewarApi;
     this.routingService = routingService;
     this.callService = callService;
     this.annotations = annotations;
 
-    this.router = this.viewarApi.sceneManager.scene.children[0];
+    this.router = this.viewarApi.sceneManager.findNodeById('LinksysRouter');
 
     this.backButton = document.getElementById('instructions_button-back');
     this.backButton.onclick = () => this.backButtonHandler();
@@ -41,47 +42,54 @@ export default class InstructionsView extends View {
     this.callButton.onclick = () => this.callHandler();
     this.endCallButton.onclick = () => this.endCallHandler();
 
-    //this.callService.socketConnection.clientJoined$.subscribe(({ id }) => alert(`user ${id} joined`) );
-    this.callService.socketConnection.clientListUpdate$.subscribe(() => this.rerenderAdminList());
+    if (!this.offline) {
+      //this.callService.socketConnection.clientJoined$.subscribe(({ id }) => alert(`user ${id} joined`) );
+      this.callService.socketConnection.clientListUpdate$.subscribe(() => this.rerenderAdminList());
 
-    this.callService.getData('stepChanged').subscribe((step) => this.setState({ step }, true));
+      this.callService.getData('stepChanged').subscribe((step) => this.setState({step}, true));
 
 
+      this.callService.getData('updateExternalAnnotation')
+          .subscribe((externalAnnotationPosition) => this.setState({externalAnnotationPosition}, true));
 
-    this.callService.getData('updateExternalAnnotation')
-      .subscribe((externalAnnotationPosition) => this.setState({ externalAnnotationPosition }, true));
-
-    this.callRefusedSub = this.callService.callRefused$.subscribe(() => this.setState({ callStatus: null, message: 'call was refused' }));
-    this.callEndedSub = this.callService.callEnded$.subscribe(() => {
-      this.setState({ callStatus: null });
-      this.callService.socketConnection.setClientData({ status: null });
-    });
-    this.callAcceptedSub = this.callService.callAccepted$.subscribe(() => this.setState({ callStatus: 'active' }));
-    this.lineBusySub = this.callService.lineBusy$.subscribe(() => this.setState({ callStatus: null, message: 'line is busy' }));
+      this.callRefusedSub = this.callService.callRefused$.subscribe(() => this.setState({
+        callStatus: null,
+        message: 'call was refused'
+      }));
+      this.callEndedSub = this.callService.callEnded$.subscribe(() => {
+        this.setState({callStatus: null});
+        this.callService.socketConnection.setClientData({status: null});
+      });
+      this.callAcceptedSub = this.callService.callAccepted$.subscribe(() => this.setState({callStatus: 'active'}));
+      this.lineBusySub = this.callService.lineBusy$.subscribe(() => this.setState({
+        callStatus: null,
+        message: 'line is busy'
+      }));
+    }
 
     this.viewarApi.coreInterface.call('switchToMode', 'TouchRay');
   }
 
-  static html(){
+  static html(offline){
     return(`
       <div class="instructions-container">
         <div id="trackingLost-message" class="fullscreen-message hidden">Tracking Lost</div>
         <button class="button-active button button-big" id="instructions_button-back">Back</button>
-          <div class="assistence">
-            <div class="help-text">Still need help with our product?</div>
-            <button class="button button-big call_button" id="call_button">Call Assistent</button>
-            <button class="button button-big call_button hidden" id="end_call_button">End Call</button>
-            <div class="hidden" id="adminList"></div>
-          </div>
-          <div class="content steps">
-            <button class="button-active button button-big" id="powerplug_button">Power Plug</button>
-            <button class="button button-big" id="internet_button">Internet</button>
-            <button class="button button-big" id="lan_button">LAN</button>
-          </div>
-          <div class="content instructions">
-            <div id="info-text" class="info-text"></div>
-            <button class="button-active button button-big" id="next_button">Next Step</button>
-          </div>
+        <div class="assistence ${offline && 'hidden'}">
+          <div class="help-text">Still need help with our product?</div>
+          <button class="button button-big call_button" id="call_button">Call Assistent</button>
+          <button class="button button-big call_button hidden" id="end_call_button">End Call</button>
+          <div class="hidden" id="adminList"></div>
+        </div>
+        <div class="content steps">
+          <button class="button-active button button-big" id="powerplug_button">Power Plug</button>
+          <button class="button button-big" id="internet_button">Internet</button>
+          <button class="button button-big" id="lan_button">LAN</button>
+        </div>
+        <div class="content instructions">
+          <div id="info-text" class="info-text"></div>
+          <button class="button-active button button-big" id="next_button">Next Step</button>
+        </div>
       </div>
   `)
   }
@@ -97,14 +105,17 @@ export default class InstructionsView extends View {
 
     this.setState(initialState);
 
-    this.viewarApi.sceneManager.on('sceneTouched', (touches) => this.handleSceneTouch(touches));
+    this.onSceneTouch = (touches) => this.handleSceneTouch(touches)
+    this.viewarApi.sceneManager.on('sceneTouched', this.onSceneTouch);
     tracker && tracker.on('trackingTargetStatusChanged', ({ tracked }) => this.setState({ tracking: tracked }));
+    tracker && tracker.activate();
   }
 
   viewDidUnmount() {
     const { tracker } = this.state;
-    tracker && tracker.off('trackingTargetStatusChanged', (tracking) => this.setState({ tracking }));
-    this.viewarApi.sceneManager.off('sceneTouched', ({ tracked }) => this.setState({ tracking: tracked }));
+    tracker && tracker.off('trackingTargetStatusChanged', ({ tracked }) => this.setState({ tracking: tracked }));
+    tracker && tracker.deactivate();
+    this.viewarApi.sceneManager.off('sceneTouched', this.onSceneTouch);
 
 
     // this.incomingCallSub.unsubscribe();
@@ -156,7 +167,7 @@ export default class InstructionsView extends View {
       '3. Connect lan cables',
     ];
 
-    if(!synced) {
+    if(!synced && !this.offline) {
       try{
         this.callService.sendData('stepChanged', step);
       } catch(e) {
@@ -258,14 +269,16 @@ export default class InstructionsView extends View {
   }
 
   async handleSceneTouch(touches) {
-    const { callStatus } = this.callService;
-    if(callStatus !== ACTIVE || !touches.length) return;
+    if (!this.offline) {
+      const {callStatus} = this.callService;
+      if (callStatus !== ACTIVE || !touches.length) return;
 
-    const sortedTouches = await sortTouchesByDistance(touches, this.viewarApi);
-    const { x, y, z } = sortedTouches[0].intersection[0];
+      const sortedTouches = await sortTouchesByDistance(touches, this.viewarApi);
+      const {x, y, z} = sortedTouches[0].intersection[0];
 
-    this.setState({ annotation: { x, y, z }});
-    this.callService.sendData('updateExternalAnnotation', { x, y, z});
+      this.setState({annotation: {x, y, z}});
+      this.callService.sendData('updateExternalAnnotation', {x, y, z});
+    }
   }
 
   async annotationHandler(position, instance) {

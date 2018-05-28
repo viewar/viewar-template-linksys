@@ -17,4 +17,8 @@ export default class  View {
 
   onStateChanged(state) {
   }
+
+  html() {
+    return `<div></div>`;
+  }
 }

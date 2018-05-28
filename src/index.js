@@ -42,20 +42,18 @@ const ledConfig = [{
   showLoading(true);
 
   // initializing api and services
-  const api = await viewarApi.init({logToScreen: true});
+  const api = await viewarApi.init({logToScreen: true, waitForDebugger: false});
   window.api = api;
 
-
   api.sceneManager.clearScene();
-
-  const routingService = new RoutingService(api);
-
-  const ledCheckService = createLedCheck({viewarApi: api, ledConfig: ledConfig || api.appConfig.uiConfig.ledConfig } );
-
-
   const socketConnection = createSocketConnection({ host: 'ws://3.viewar.com:3001'});
 
-  socketConnection.socket.on('connect_error', alert);
+  // await setupApp(true, socketConnection)
+
+  socketConnection.socket.on('connect_error', async(error) => {
+    console.error(error)
+    await setupApp(true, socketConnection)
+  });
   socketConnection.socket.on('connect', async () => {
     const callService = createCallService(socketConnection, api);
 
@@ -65,36 +63,44 @@ const ledConfig = [{
       id: api.appConfig.uiConfig.socketChannel
     });
 
-    await api.cameras.augmentedRealityCamera.activate();
-
-    // inserting the router model into the scene
-    const routerModel = api.modelManager.findModelByForeignKey('linksys_router');
-    await api.sceneManager.insertModel(routerModel, { pose:{ position:{ x:0, y:0, z:0 }}});
-
-    // inserting annotation points into the scene
-    const annotationModel = await api.modelManager.getModelFromRepository('45972');
-    const ownAnnotationInstance = await api.sceneManager.insertModel(annotationModel, { visible: false, pose:{ scale: {x: 0.05, y: 0.05, z: 0.05}, position:{ x:0, y:0, z:0 }}});
-    await ownAnnotationInstance.setPropertyValues({ color: 'blue'});
-
-    const externalAnnotationInstance = await api.sceneManager.insertModel(annotationModel, { visible: false, pose:{ scale: {x: 0.05, y: 0.05, z: 0.05}, position:{ x:0, y:0, z:0 }}});
-    await externalAnnotationInstance.setPropertyValues({ color: 'red'});
-
-    const annotations = { ownAnnotationInstance, externalAnnotationInstance };
-
-    // injecting views to act as a single page application
-    const views = document.getElementById('views');
-    routingService.injectViews(views, [
-      { id: 'home-view', container: HomeView, props: { viewarApi: api, routingService, callService, socketConnection }},
-      { id: 'instructions-view', container: InstructionsView, props: { viewarApi: api, routingService, callService, annotations }},
-      { id: 'troubleshooting-view', container: TroubleshootingView, props: { viewarApi, routingService, ledCheckService }},
-    ]);
-
-    setTimeout(() => routingService.showView('home-view'), 20);
-
-    showLoading(false);
+    await setupApp(false, socketConnection, callService)
   });
 
 })();
+
+async function setupApp(offline = false, socketConnection, callService) {
+  const routingService = new RoutingService(viewarApi, offline);
+
+  const ledCheckService = createLedCheck({viewarApi, ledConfig: ledConfig || api.appConfig.uiConfig.ledConfig } );
+
+  await viewarApi.cameras.augmentedRealityCamera.activate();
+
+  // inserting the router model into the scene
+  const routerModel = viewarApi.modelManager.findModelByForeignKey('linksys_router');
+  await viewarApi.sceneManager.insertModel(routerModel, { id: 'LinksysRouter', pose:{ position:{ x:0, y:0, z:0 }}});
+
+  // inserting annotation points into the scene
+  const annotationModel = await viewarApi.modelManager.getModelFromRepository('45972');
+  const ownAnnotationInstance = await viewarApi.sceneManager.insertModel(annotationModel, { visible: false, pose:{ scale: {x: 0.05, y: 0.05, z: 0.05}, position:{ x:0, y:0, z:0 }}});
+  await ownAnnotationInstance.setPropertyValues({ color: 'blue'});
+
+  const externalAnnotationInstance = await viewarApi.sceneManager.insertModel(annotationModel, { visible: false, pose:{ scale: {x: 0.05, y: 0.05, z: 0.05}, position:{ x:0, y:0, z:0 }}});
+  await externalAnnotationInstance.setPropertyValues({ color: 'red'});
+
+  const annotations = { ownAnnotationInstance, externalAnnotationInstance };
+
+  // injecting views to act as a single page application
+  const views = document.getElementById('views');
+  routingService.injectViews(views, [
+    { id: 'home-view', container: HomeView, props: { viewarApi, offline, routingService, callService, socketConnection }},
+    { id: 'instructions-view', container: InstructionsView, props: { viewarApi, offline, routingService, callService, annotations }},
+    { id: 'troubleshooting-view', container: TroubleshootingView, props: { viewarApi, routingService, ledCheckService }},
+  ]);
+
+  setTimeout(() => routingService.showView('home-view'), 20);
+
+  showLoading(false);
+}
 
 function showLoading(show) {
   const spinner = document.getElementById('loadingSpinner');

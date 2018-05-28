@@ -74,6 +74,7 @@ export default class TroubleshootingView extends View {
 
 
     tracker && tracker.on('trackingTargetStatusChanged', ({ tracked }) => this.setState({ tracking: tracked }));
+    tracker && tracker.activate();
   }
 
   viewDidUnmount() {
@@ -82,8 +83,9 @@ export default class TroubleshootingView extends View {
     this.ledCheckService.stop();
 
 
-    tracker && tracker.off('trackingTargetStatusChanged', (tracking) => this.setState({ tracking }));
-    this.viewarApi.sceneManager.off('sceneTouched', (touches) => this.handleSceneTouch(touches));
+    tracker && tracker.off('trackingTargetStatusChanged', ({ tracked }) => this.setState({ tracking: tracked }));
+    tracker && tracker.deactivate();
+    // this.viewarApi.sceneManager.off('sceneTouched', (touches) => this.handleSceneTouch(touches));
   }
 
   async handleSceneTouch(touches) {

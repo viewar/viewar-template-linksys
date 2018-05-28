@@ -5,11 +5,12 @@ import logo from '../../../assets/Cisco_logo.svg';
 
 export default class HomeView extends View {
 
-  constructor({ routingService, callService, socketConnection }){
+  constructor({ offline, routingService, callService, socketConnection }){
     super();
     this.routingService = routingService;
     this.callService = callService;
     this.socketConnection = socketConnection;
+    this.offline = offline
 
     const troubleShootingButton = document.getElementById('home_troubleShootingButton');
     const instructionsButton = document.getElementById('home_instructionsButton');
@@ -19,18 +20,21 @@ export default class HomeView extends View {
     instructionsButton.onclick = () => this.instructionsButtonHandler();
     adminButton.onclick = () => this.adminButtonHandler();
 
-    this.incomingCallSub = this.callService.incomingCall$.subscribe((id) => this.incomingCallHandler(id));
+    if (!offline) {
+      this.incomingCallSub = this.callService.incomingCall$.subscribe((id) => this.incomingCallHandler(id));
+    }
 
   }
 
-  static html(){
+  static html(offline){
     return(`
       <div class="home-container">
         <video class="background-video" autoplay playsinline webkit-playsinline loop muted >
           <source src="http://test2.3.viewar.com/linksys/assets/intro.mp4" />
         </video>
         <img class="logo" src=${logo} alt="cisco logo white">
-        <button class="button-active button button-big red" id="home_adminButton">Admin Mode</button>
+        <button class="button-active button button-big red ${offline && 'hidden'}" id="home_adminButton">Admin Mode</button>
+        <div class="offline-message ${!offline && 'hidden'}">Offline</div>
         <div class="button-bar bottom-right">
           <button class="button-active button button-big" id="home_instructionsButton">Installation Guide</button>
           <button class="button-active button button-big" id="home_troubleShootingButton">Trouble Shooting</button>
@@ -58,9 +62,14 @@ export default class HomeView extends View {
   }
 
   adminButtonHandler() {
-    const name = prompt('Please enter your username', 'Admin');
-    if(!name) return;
+    if (this.offline) {
+      alert('Admin mode not available when offline.')
+    } else {
 
-    this.socketConnection.setClientData({ name, role: 'Admin' });
+      const name = prompt('Please enter your username', 'Admin');
+      if (!name) return;
+
+      this.socketConnection.setClientData({name, role: 'Admin'});
+    }
   }
 }
