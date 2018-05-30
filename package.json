@@ -22,7 +22,7 @@
     "fastclick": "^1.0.6",
     "rxjs": "^5.5.2",
     "socket.io-client": "^2.0.4",
-    "viewar-api": "file:../viewar-scripts",
+    "viewar-api": "^0.10.53",
     "viewar-call": "file:viewar-call",
     "viewar-core": "^11.0.0",
     "viewar-socket": "file:viewar-socket"
